@@ -90,6 +90,7 @@ func (j *JobService) performUpload() error {
 	videoUpload := NewVideoUpload()
 	videoUpload.OutputBucket = os.Getenv("outputBucketName")
 	videoUpload.VideoPath = os.Getenv("localStoragePath") + "/" + j.VideoService.Video.ID
+	videoUpload.Prefix = j.VideoService.Video.Prefix
 	concurrency, _ := strconv.Atoi(os.Getenv("CONCURRENCY_UPLOAD"))
 	doneUpload := make(chan string)
 
