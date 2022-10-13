@@ -5,12 +5,13 @@ import (
 	"encoder/application/services"
 	"encoder/domain"
 	"encoder/framework/database"
-	uuid "github.com/satori/go.uuid"
-	"github.com/stretchr/testify/require"
 	"log"
 	"testing"
 	"time"
+
 	"github.com/joho/godotenv"
+	uuid "github.com/satori/go.uuid"
+	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -26,7 +27,7 @@ func prepare() (*domain.Video, repositories.VideoRepositoryDb) {
 
 	video := domain.NewVideo()
 	video.ID = uuid.NewV4().String()
-	video.FilePath = "convite.mp4"
+	video.FilePath = "teste-videos/decoleira teste.mp4"
 	video.CreatedAt = time.Now()
 
 	repo := repositories.VideoRepositoryDb{Db: db}
@@ -42,7 +43,7 @@ func TestVideoServiceDownload(t *testing.T) {
 	videoService.Video = video
 	videoService.VideoRepository = repo
 
-	err := videoService.Download("codeeducationtest")
+	err := videoService.Download("decoleira")
 	require.Nil(t, err)
 
 	err = videoService.Fragment()

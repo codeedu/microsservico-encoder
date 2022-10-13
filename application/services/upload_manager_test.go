@@ -1,12 +1,18 @@
 package services_test
 
 import (
+	"encoder/application/repositories"
 	"encoder/application/services"
-	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/require"
+	"encoder/domain"
+	"encoder/framework/database"
 	"log"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/joho/godotenv"
+	uuid "github.com/satori/go.uuid"
+	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -16,15 +22,29 @@ func init() {
 	}
 }
 
+func prepare2() (*domain.Video, repositories.VideoRepositoryDb) {
+	db := database.NewDbTest()
+	defer db.Close()
+
+	video := domain.NewVideo()
+	video.ID = uuid.NewV4().String()
+	video.FilePath = "teste-videos/decoleira teste.mp4"
+	video.CreatedAt = time.Now()
+
+	repo := repositories.VideoRepositoryDb{Db: db}
+
+	return video, repo
+}
+
 func TestVideoServiceUpload(t *testing.T) {
 
-	video, repo := prepare()
+	video, repo := prepare2()
 
 	videoService := services.NewVideoService()
 	videoService.Video = video
 	videoService.VideoRepository = repo
 
-	err := videoService.Download("codeeducationtest")
+	err := videoService.Download("decoleira")
 	require.Nil(t, err)
 
 	err = videoService.Fragment()
@@ -34,7 +54,7 @@ func TestVideoServiceUpload(t *testing.T) {
 	require.Nil(t, err)
 
 	videoUpload := services.NewVideoUpload()
-	videoUpload.OutputBucket = "codeeducationtest"
+	videoUpload.OutputBucket = "decoleira"
 	videoUpload.VideoPath = os.Getenv("localStoragePath") + "/" + video.ID
 
 	doneUpload := make(chan string)
