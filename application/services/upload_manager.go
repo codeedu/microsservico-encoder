@@ -1,7 +1,6 @@
 package services
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"io"
 	"log"
@@ -9,6 +8,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"cloud.google.com/go/storage"
 )
 
 type VideoUpload struct {
@@ -91,18 +92,23 @@ func (vu *VideoUpload) ProcessUpload(concurrency int, doneUpload chan string) er
 		for x := 0; x < len(vu.Paths); x++ {
 			in <- x
 		}
-		close(in)
 	}()
 
+	countDoneWorker := 0
 	for r := range returnChannel {
+		countDoneWorker++
+
 		if r != "" {
 			doneUpload <- r
 			break
 		}
+
+		if countDoneWorker == len(vu.Paths) {
+			close(in)
+		}
 	}
 
 	return nil
-
 }
 
 func (vu *VideoUpload) uploadWorker(in chan int, returnChan chan string, uploadClient *storage.Client, ctx context.Context) {
